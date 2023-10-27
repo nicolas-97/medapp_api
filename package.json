@@ -2,9 +2,9 @@
   "name": "firebase-medapp",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "dev": "nodemon src/index.mjs"
+    "dev": "nodemon src/main.mjs"
   },
   "keywords": [],
   "author": "",

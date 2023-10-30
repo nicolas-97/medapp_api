@@ -55,7 +55,7 @@ router.get('/login', async (req, res) => {
 /* -------------------------------------------------------------------------- */
 
 // Consulta de usuarios
-router.get('/users', validateToken ,async (req, res) => {
+router.get('/users' ,async (req, res) => {
 
     // El querySnapshot es la respuesta de la base de datos
     const querySnapshot = await db.collection('users').get();
@@ -91,7 +91,7 @@ router.post('/new-user', async (req, res) => {
 })
 
 // Edicion de usuario
-router.get('/search-user/:id', async (req, res) => {
+router.get('/search-user/:id', validateToken ,async (req, res) => {
 
     // Consulta a un solo user
    const doc = await db.collection('users').doc(req.params.id).get();

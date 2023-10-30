@@ -1,7 +1,12 @@
 // Inicio de la app
 import app from './app.mjs';
 import './firebase.mjs'
+import dotenv from 'dotenv';
 
-app.listen(4000, () => {
+dotenv.config();
+
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
     console.log('Servidor iniciado en el puerto 4000');
 });

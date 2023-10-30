@@ -4,6 +4,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 const router = Router();
+const secretKey = process.env.SECRET_KEY
 
 
 /* -------------------------------------------------------------------------- */
@@ -13,33 +14,48 @@ const router = Router();
 function generateAccessToken(user) {
 
     // El token se genera con la informacion del usuario y la clave secreta
-    return jsonwebtoken.sign(user, process.env.SECRET_KEY, { expiredIn: '5m' });
+    return jsonwebtoken.sign({ data: user }, secretKey, { expiresIn: '10m' });
+}
+
+// Validación del token
+function validateToken(req, res, next) {
+    const accesToken = req.header('auth-token');
+    if(!accesToken) res.send('Lo siento, necesitas un token');
+
+    jsonwebtoken.verify(accesToken, secretKey, (err, user) => {
+        if(err){
+            res.send('Token no valido');
+        }else{
+            next();
+        }
+    })
 }
 
 
 // Autenticacion de usuario
-router.post('/auth', async (req, res) => {
-    const { user, password } = req.body;
+router.get('/login', async (req, res) => {
 
-    // Consultar usuario( aqui podemos colocar la informacion necesaria para comparar token)
-    const usuario = { user: user };
+    const { usuario, password } = req.body;
+
+    const querySnapshot = await db.collection('users').where('usuario', '==', usuario).where('password', '==', password).get();   
+
+    // returna mensaje de error si no encuentra el usuario
+    if(querySnapshot.docs[0] === undefined) return res.send('Usuario o contraseña incorrectos');
 
     // Generar token
     const accesToken = generateAccessToken(usuario);
-    // Se envia el token en el header
-    res.header('auth-token', accesToken).json({
-        message: 'OK',
-        token: accesToken
-    });
 
+    // Se envia el token en el header
+    res.set('auth-token', accesToken).send({ message: 'Usuario corrercto', token: accesToken });
 });
 
 
 /* -------------------------------------------------------------------------- */
 /*                                  Usuarios                                  */
 /* -------------------------------------------------------------------------- */
+
 // Consulta de usuarios
-router.get('/users', async (req, res) => {
+router.get('/users', validateToken ,async (req, res) => {
 
     // El querySnapshot es la respuesta de la base de datos
     const querySnapshot = await db.collection('users').get();
@@ -75,7 +91,7 @@ router.post('/new-user', async (req, res) => {
 })
 
 // Edicion de usuario
-router.get('/edit-user/:id', async (req, res) => {
+router.get('/search-user/:id', async (req, res) => {
 
     // Consulta a un solo user
    const doc = await db.collection('users').doc(req.params.id).get();

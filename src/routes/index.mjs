@@ -35,18 +35,22 @@ function validateToken(req, res, next) {
 // Autenticacion de usuario
 router.get('/login', async (req, res) => {
 
-    const { usuario, password } = req.body;
+    try {
+        const { usuario, password } = req.body;
 
-    const querySnapshot = await db.collection('users').where('usuario', '==', usuario).where('password', '==', password).get();   
+        const querySnapshot = await db.collection('users').where('usuario', '==', usuario).where('password', '==', password).get();   
 
-    // returna mensaje de error si no encuentra el usuario
-    if(querySnapshot.docs[0] === undefined) return res.send('Usuario o contraseña incorrectos');
+        // returna mensaje de error si no encuentra el usuario
+        if(querySnapshot.docs[0] === undefined) return res.send('Usuario o contraseña incorrectos');
 
-    // Generar token
-    const accesToken = generateAccessToken(usuario);
+        // Generar token
+        const accesToken = generateAccessToken(usuario);
 
-    // Se envia el token en el header
-    res.set('auth-token', accesToken).send({ message: 'Usuario corrercto', token: accesToken });
+        // Se envia el token en el header
+        res.set('auth-token', accesToken).send({ message: 'Usuario corrercto', token: accesToken });
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 
@@ -57,66 +61,84 @@ router.get('/login', async (req, res) => {
 // Consulta de usuarios
 router.get('/users' ,async (req, res) => {
 
-    // El querySnapshot es la respuesta de la base de datos
-    const querySnapshot = await db.collection('users').get();
+    try {
+        // El querySnapshot es la respuesta de la base de datos
+        const querySnapshot = await db.collection('users').get();
 
-    const users = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }));
+        const users = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
 
-    console.log(users);
+        console.log(users);
 
-    res.send('Hola mundo');
+        res.send('Consulta de usuarios');
 
+    } catch (error) {
+        console.log(error);        
+    }
 })
 
 // Creacion de usuario
 router.post('/new-user', async (req, res) => {
-    const { apellido, condicion, correo, foto, nombre, password, responsable, telefono, usuario } = req.body
-    
-    await db.collection('users').add({
-        apellido,
-        condicion,
-        correo,
-        foto,
-        nombre,
-        password,
-        responsable,
-        telefono,
-        usuario
-    })
+    try {
+        const { apellido, condicion, correo, foto, nombre, password, responsable, telefono, usuario } = req.body
+        
+        await db.collection('users').add({
+            apellido,
+            condicion,
+            correo,
+            foto,
+            nombre,
+            password,
+            responsable,
+            telefono,
+            usuario
+        })
 
-    res.send('User created');
+        res.send('User created');
+    } catch (error) {
+        console.log(error);
+    }
 })
 
 // Edicion de usuario
 router.get('/search-user/:id', validateToken ,async (req, res) => {
+    try {
+        // Consulta a un solo user
+        const doc = await db.collection('users').doc(req.params.id).get();
 
-    // Consulta a un solo user
-   const doc = await db.collection('users').doc(req.params.id).get();
+        console.log({
+            id: doc.id,
+            ...doc.data()
+        });
 
-    console.log({
-        id: doc.id,
-        ...doc.data()
-    });
-
-    res.send('User consult');
+        res.send('User consult');
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 // Eliminacion de un usuario
 router.get('/delete-user/:id', async (req, res) => {
-    await db.collection('users').doc(req.params.id).delete();
-    res.send('User deleted');
+    try {
+        await db.collection('users').doc(req.params.id).delete();
+        res.send('User deleted');
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 // Actualizacion de un usuario
 router.post('/update-user/:id', async (req, res) => {
-    
+    try {
+        await db.collection('users').doc(req.params.id).update(req.body)
 
-    await db.collection('users').doc(req.params.id).update(req.body)
-
-    res.send('User updated');
+        res.send('User updated');
+    } catch (error) {
+        console.log(error);
+        
+    }
 });
 
 

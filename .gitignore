@@ -1,3 +1,4 @@
 .env
 firebase.json
-bun.lockbs
+bun.lockb
+node_modules

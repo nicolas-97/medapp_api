@@ -6,8 +6,6 @@ import { getStorage } from "firebase-admin/storage";
 
 dotenv.config();
 
-const storage = getStorage();
-
 initializeApp({
     credential: admin.credential.cert({
       "project_id": process.env.FIREBASE_PROJECT_ID,
@@ -18,6 +16,8 @@ initializeApp({
     databaseURL: "https://my-firebase-app.firebaseio.com"
   })
 
+
+const storage = getStorage();
 const reference = storage.bucket();
 
 const db = getFirestore();

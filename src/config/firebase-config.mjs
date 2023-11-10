@@ -10,8 +10,13 @@ const storage = getStorage();
 const reference =  await ref(storage, "pills_and_caps.png")
 
 initializeApp({
-    credential: applicationDefault()
-})
+    credential: admin.credential.cert({
+      "project_id": process.env.FIREBASE_PROJECT_ID,
+      "private_key": process.env.FIREBASE_PRIVATE_KEY,
+      "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+    }),
+    databaseURL: "https://my-firebase-app.firebaseio.com"
+  })
 
 const db = getFirestore();
 
